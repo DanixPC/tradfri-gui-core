@@ -8,6 +8,7 @@ import com.marcguillem.tradfriguicore.Services.ConsoleLogTool.IConsoleLogToolSer
 import com.marcguillem.tradfriguicore.Services.ControllerAdvice.Errors.GenericException;
 import com.marcguillem.tradfriguicore.Services.ReflectionService.IReflectionService;
 import com.marcguillem.tradfriguicore.Services.SettingsLoader.ISettingsLoader;
+import com.marcguillem.tradfriguicore.Services.Tradfri.ITradfriService;
 import com.marcguillem.tradfriguicore.Services.TradfriDiscover.ITradfriDiscoverService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -28,6 +29,9 @@ public class StarterServiceImpl implements IStarterService {
     @Autowired
     private IConsoleLogToolService consoleLogToolService;
 
+    @Autowired
+    private ITradfriService tradfriService;
+
     @Override
     public ResponseMessageModel checkStartUp() throws Exception {
         ResponseMessageModel responseMessageModel;
@@ -41,7 +45,8 @@ public class StarterServiceImpl implements IStarterService {
 
     @Override
     public Boolean setStartupSettings(SettingsModel settingsModel) throws IOException {
-        return this.settingsLoader.createSettingsFile(settingsModel);
+        this.settingsLoader.createSettingsFile(settingsModel);
+        return this.tradfriService.loadSettingsInTradfriClass();
     }
 
     private int checkSettingsFile() throws Exception {
@@ -57,6 +62,7 @@ public class StarterServiceImpl implements IStarterService {
             if(ajustes.getTradfriIp().equalsIgnoreCase("") || ajustes.getTradfriSecurityCode().equalsIgnoreCase("")) {
                 return SettingsCheckConstant.SettingsFileFoundButNull;
             }
+            this.tradfriService.loadSettingsInTradfriClass();
             return SettingsCheckConstant.SettingsFileAlreadyConfigured;
         } finally {
             ajustes = null;

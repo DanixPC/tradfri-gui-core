@@ -1,17 +1,26 @@
 package com.marcguillem.tradfriguicore.Services.TradfriDiscover;
 
+import com.marcguillem.tradfriguicore.Models.SettingsModel;
 import com.marcguillem.tradfriguicore.Services.Network.INetworkService;
+import com.marcguillem.tradfriguicore.Services.SettingsLoader.ISettingsLoader;
+import nl.stijngroenen.tradfri.device.Gateway;
+import nl.stijngroenen.tradfri.util.Credentials;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class TradfriDiscoverServiceImpl implements ITradfriDiscoverService {
 
     @Autowired
     private INetworkService networkService;
+
+    @Autowired
+    private ISettingsLoader settingsLoader;
 
     @Override
     public String discoverTradfriIp() throws IOException {
@@ -35,10 +44,26 @@ public class TradfriDiscoverServiceImpl implements ITradfriDiscoverService {
                 if (InetAddress.getByName(host).getHostName().startsWith("GW")) {
                     return host;
                 }
-                System.out.println(host + " is reachable" + " // NAME: " + InetAddress.getByName(host).getHostName());
             }
-            System.out.println(host);
         }
         return null;
+    }
+
+    public SettingsModel getAndSaveIdentityAndKey() throws IOException {
+        SettingsModel settingsModel;
+        Gateway gateway;
+        Credentials credentials;
+        try {
+            settingsModel = this.settingsLoader.getSettings();
+            gateway = new Gateway(settingsModel.getTradfriIp());
+            credentials = gateway.connect(settingsModel.getTradfriSecurityCode());
+            settingsModel.setIdentity(credentials.getIdentity());
+            settingsModel.setKey(credentials.getKey());
+            return this.settingsLoader.setSettings(settingsModel);
+        } finally {
+            settingsModel = null;
+            gateway = null;
+            credentials = null;
+        }
     }
 }
