@@ -13,9 +13,9 @@ repositories {
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	implementation 'org.springframework.boot:spring-boot-starter-web:2.5.5'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools:2.5.5'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test:2.5.5'
 
 	implementation files('libs/ikea-tradfri-api-1.2.0.jar')
 
